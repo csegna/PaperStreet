@@ -1,13 +1,11 @@
 package project02CS2114;
 
 /**
- * // -------------------------------------------------------------------------
-/**
- *  a stock that can be traded:
- *  has ticker symbol, company name, short desc, and current share price
- * 
- *  @author corbin segna
- *  @version Oct 11, 2026
+ * A stock in PaperStreet: ticker, company name, description, and price
+ * Two stocks are equal when their tickers match
+ *
+ * @author Corbin Segna
+ * @version Oct 11 2026
  */
 public class StockInfoClass
 {
@@ -16,19 +14,15 @@ public class StockInfoClass
     private final String description;
     private double sharePrice;
 
-    
-    /** 
-     * creates a stock
-     * 
-     * @param ticker      the ticker symbol, e.g. "AAPL"; stored trimmed and
-     *                    in upper case, so "aapl " becomes "AAPL"
-     * @param companyName the company's name
-     * @param description a short description of what the company does;
-     *                    null is stored as an empty string
-     * @param sharePrice  the starting share price; must be greater than 0
-     * @throws IllegalArgumentException if ticker or companyName is null or
-     *                                  blank, or sharePrice is not a
-     *                                  positive number
+    /**
+     * Creates a stock. The ticker is stored trimmed and in upper case
+     *
+     * @param ticker      the ticker symbol
+     * @param companyName the company name
+     * @param description a short description (null becomes "")
+     * @param sharePrice  the starting price; must be positive
+     * @throws IllegalArgumentException if ticker or name is blank, or the
+     *                                  price is not positive
      */
     public StockInfoClass(
         String ticker,
@@ -51,51 +45,52 @@ public class StockInfoClass
         this.description = (description == null) ? "" : description.trim();
         this.sharePrice = sharePrice;
     }
-    
+
     /**
-     * gets the ticker symbol
-     * 
-     * @return the ticker, upper case
+     * Gets the ticker
+     *
+     * @return the ticker
      */
     public String getTicker()
     {
         return ticker;
     }
-    
+
     /**
-     * gets the company name
-     * 
+     * Gets the company name
+     *
      * @return the company name
      */
     public String getCompanyName()
     {
         return companyName;
     }
-    
+
     /**
-     * gets the description
+     * Gets the description
+     *
+     * @return the description
      */
     public String getDescription()
     {
         return description;
     }
-    
+
     /**
-     * gets the share price
-     * 
+     * Gets the current share price
+     *
      * @return the share price
      */
     public double getSharePrice()
     {
         return sharePrice;
     }
-    
+
     /**
-     * Changes the current share price
+     * Sets a new share price
      *
-     * @param newPrice the new share price must be greater than 0
-     * @throws IllegalArgumentException if newPrice is zero, negative, or
-     *                            not a number; the old price is kept
+     * @param newPrice the new price; must be positive
+     * @throws IllegalArgumentException if the price is not positive
      */
     public void setSharePrice(double newPrice)
     {
@@ -103,12 +98,10 @@ public class StockInfoClass
         sharePrice = newPrice;
     }
 
-
     /**
-     * Turns user input ticker text into the stored form: trimmed and in
-     * upper case. MarketClass uses this so "aapl" finds "AAPL".\
+     * Trims a ticker and makes it upper case, so "aapl" becomes "AAPL".
      *
-     * @param rawTicker the text the user typed
+     * @param rawTicker the ticker as typed
      * @return the normalized ticker, or null if rawTicker is null
      */
     public static String normalizeTicker(String rawTicker)
@@ -120,12 +113,11 @@ public class StockInfoClass
         return rawTicker.trim().toUpperCase();
     }
 
-
     /**
      * Two stocks are equal when their tickers match
      *
-     * @param other the object to compare with
-     * @return true if other is a StockInfoClass with the same ticker
+     * @param other the object to compare
+     * @return true if the tickers match
      */
     @Override
     public boolean equals(Object other)
@@ -141,9 +133,8 @@ public class StockInfoClass
         return ticker.equals(((StockInfoClass)other).ticker);
     }
 
-
     /**
-     * Hash code consistent with equals(): based on the ticker
+     * Hash code based on the ticker
      *
      * @return the hash code
      */
@@ -153,12 +144,10 @@ public class StockInfoClass
         return ticker.hashCode();
     }
 
-
     /**
-     * One line for the market listing, e.g.
-     * "AAPL   Apple Inc.                $189.50".
+     * One line for the market listing
      *
-     * @return a readable summary of this stock
+     * @return ticker, name, and price
      */
     @Override
     public String toString()
@@ -168,10 +157,9 @@ public class StockInfoClass
     }
 
     /**
-     * Rejects prices that are zero, negative, NaN or infinite
+     * Throws if a price is zero, negative, or not a real number
      *
      * @param price the price to check
-     * @throws IllegalArgumentException if the price is not valid
      */
     private static void checkPrice(double price)
     {
@@ -180,6 +168,5 @@ public class StockInfoClass
             throw new IllegalArgumentException(
                 "Share price must be a positive number, got " + price);
         }
-    } 
-    
+    }
 }
