@@ -61,6 +61,11 @@ public class StockTransactionsClass
         boolean
         buyStock(playerProfileClass player, StockInfoClass stock, int shares)
     {
+        if (shares <= 0)
+        {
+            return false;
+        }
+
         if (stock.getSharePrice() * shares > player.getBalance())
         {
             return false;
@@ -104,6 +109,11 @@ public class StockTransactionsClass
         boolean
         sellStock(playerProfileClass player, StockInfoClass stock, int shares)
     {
+        if (shares <= 0)
+        {
+            return false;
+        }
+
         for (int i = 0; i < player.getHoldings().size(); i++)
         {
             HoldingClass currHolding = player.getHoldings().get(i);

@@ -1,12 +1,24 @@
 # PaperStreet
 paper trading game project
 
-Reflection (Megha Dabbeeru): 
+Reflection: 
 
-- I completed the playerTransactionHistory, playerTransactionHistoryChain, and Main class for our project. In the creation of these classes, there were a few things that were changed. One of these include my realization throughout the process of the creation of the playerTransactionHistoryChain class that I didn't have the need to actually write explicit add(), contains(), etc. methods due to the methods within the LinkedChain class being sufficient. In addition, for the PlayerTransactionHistory class, I changed the structure from being something akin to a list to being a Map/Hashmap, which I determined would work far easier for our purposes and would be much more organized. In accordance with this change, I changed the methods that were created, from being more linked chain/array based to being more related to the Map data structure.
+- Megha: I completed the playerTransactionHistory, playerTransactionHistoryChain, and Main class for our project. In the creation of these classes, there were a few things that were changed. 
+One of these include my realization throughout the process of the creation of the playerTransactionHistoryChain class that I didn't have the need to actually write explicit add(), contains(), etc. methods due to the methods within the LinkedChain class being sufficient. 
+In addition, for the PlayerTransactionHistory class, I changed the structure from being something akin to a list to being a Map/Hashmap, which I determined would work far easier for our purposes and would be much more organized. 
+In accordance with this change, I changed the methods that were created, from being more linked chain/array based to being more related to the Map data structure.
+
+-Mikey: I completed the HoldingClass, StockTransactionsClass, and playerProfileClass for the project. I had to alter the constructors for two of these classes. For the HoldingClass,
+I deleted one of the fields as it served no real purpose. For the playerProfileClass, I added an ArrayList for the holdings as it wasn't in the initial constructor. I also added a getter
+for the Stock in HoldingClass as it wasn't in the initial document but needed.
+
 - Nothing changed with the LinkedChain in my implementation of the classes I worked on.
+
 - We didn't quite have many, if any, unknowns in our scope of the project, as such, I cannot speak on whether or not any unknowns were found out or not.
+
 - For my part of this project, what is left is to test is the actual combining of all the components of this project as the three of us worked on our parts very separately.
+
+
 
 
 Next Steps :

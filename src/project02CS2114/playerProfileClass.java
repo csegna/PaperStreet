@@ -32,6 +32,7 @@ public class playerProfileClass
         this.balance = startingBalance;
         transactionHistory = new playerTransactionHistoryChain();
         this.startingBalance = startingBalance;
+        this.holdings = new ArrayList<HoldingClass>();
     }
 
 
