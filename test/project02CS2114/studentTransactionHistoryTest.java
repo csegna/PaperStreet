@@ -1,16 +1,16 @@
 package project02CS2114;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class studentTransactionHistoryTest
 {
     private playerTransactionHistory test1;
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         test1 = new playerTransactionHistory("1/2/2003", 1234);
