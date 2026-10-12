@@ -47,7 +47,7 @@ public class playerTransactionHistory
     {
         for (String i : stocksBoughtInformation.keySet())
         {
-            if (stocksBoughtInformation.get(i) == price)
+            if (stocksBoughtInformation.get(i).equals(price))
             {
                 return i;
             }
