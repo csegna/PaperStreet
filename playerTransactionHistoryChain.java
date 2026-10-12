@@ -4,9 +4,7 @@ public class playerTransactionHistoryChain
     extends LinkedChain<playerTransactionHistory>
 {
     // ~ Fields ................................................................
-    private playerTransactionHistory[] entries =
-        this.toArray(new playerTransactionHistory[this.size()]);
-
+    
     // ~ Constructors ..........................................................
     public playerTransactionHistoryChain()
     {
@@ -16,15 +14,14 @@ public class playerTransactionHistoryChain
 
     public playerTransactionHistory getSpecificDayInfo(String date)
     {
-        for (playerTransactionHistory i : entries)
+        playerTransactionHistory[] entries =
+            this.toArray(new playerTransactionHistory[this.size()]);
+
+        for (playerTransactionHistory entry : entries)
         {
-            if (i.getDate() == date)
+            if (entry.getDate().equals(date))
             {
-                return i;
-            }
-            else
-            {
-                continue;
+                return entry;
             }
         }
         return null;
