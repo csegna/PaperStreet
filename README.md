@@ -37,3 +37,8 @@ Megha-PlayerTransactionHistoryChain
 Megha-PlayerTransactionHistoryChainTest (Used GenAI to help figure out edge cases and what exactly to test)
 Megha-studentTransactionHistoryTest (Used GenAI to help figure out edge cases and what exactly to test)
 Megha-Main (Used GenAI to help figure out how the structure of the code should function, in terms of when the gameStart function should be called and what each method should do in conjunction).
+
+Mikey - HoldingClass. Mikey & GenAI - HoldingClassTest (Used GenAI to help set up the JUnit as it was different syntax than before).
+Mikey - playerProfileClass. Mikey & GenAI - playerProfileClass (Used GenAI to help set up the JUnit as it was different syntax than before).
+Mikey - StockTransactionsClass. Mikey & GenAI - StockTransactionsClassTest (Used GenAI to help set up the JUnit as it was different syntax than before).
+
