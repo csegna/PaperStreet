@@ -25,3 +25,29 @@ Megha-PlayerTransactionHistoryChain
 Megha-PlayerTransactionHistoryChainTest (Used GenAI to help figure out edge cases and what exactly to test)
 Megha-studentTransactionHistoryTest (Used GenAI to help figure out edge cases and what exactly to test)
 Megha-Main (Used GenAI to help figure out how the structure of the code should function, in terms of when the gameStart function should be called and what each method should do in conjunction).
+
+
+
+
+Reflection (Corbin Segna):
+
+- I completed StockInfoClass, StockInfoChain, and MarketClass. Changes from our spec: StockInfoChain holds a LinkedChain as a field instead of extending it, since the LinkedChain says to use it that way and it keeps all app logic out of the chain. add() now returns boolean so it can refuse duplicate tickers, and advanceDay() returns boolean so Main knows if the day actually advanced. I added getByTicker(), recordTrade(), getDaysRemaining(), and isGameOver(), and an equals() on StockInfoClass (by ticker) so contains/count/remove work. Validation for prices lives in StockInfoClass, and the 2-day no-trading rule lives in MarketClass.advanceDay() like the spec said The "count of 2 AAPL" test from our plan was dropped since tickers are unique. (Changes came from my own review while building, with Claudes help.)
+- I did not change LinkedChain, my classes only use its public methods.
+- Unknown #2 (how to change prices) is solved: each day every price moves by a random -5% to +5%, rounded to the cent and never below $0.01. Unknowns #1 (real-time API) and #3 (saving/loading a game) are still open.
+- My classes and their 47 tests all pass. Nothing in my part is failing, it still needs to be connected to Main.
+
+Next Steps (Corbin):
+
+- Connect MarketClass to Main: show the market, day counter, and days remaining, and call market.recordTrade() after every successful buy/sell
+- New tests: MarketClass with the full game loop (trade, advance, game over), and the buy/sell flow with an unknown ticker and a lowercase ticker
+- Stretch goals: per stock volatility and random "news events" for prices
+
+Attribution:
+
+Corbin-StockInfoClass 
+Corbin-StockInfoChain 
+Corbin-MarketClass (Price modeling and market built with claude asssistance)
+Corbin-StockInfoClassTest (test reviewed by claude)
+Corbin-StockInfoChainTest (test review by claude)
+Corbin-MarketClassTest (Claude assisted)
+Corbin-Project setup (src/test layout, merged Megha's files, converted her tests to JUnit 5)
