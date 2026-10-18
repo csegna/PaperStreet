@@ -17,13 +17,23 @@ public class playerTransactionHistoryChain
         playerTransactionHistory[] entries =
             this.toArray(new playerTransactionHistory[this.size()]);
 
+        int totalDeducted = 0;
+        boolean found = false;
+
         for (playerTransactionHistory entry : entries)
         {
             if (entry.getDate().equals(date))
             {
-                return entry;
+                totalDeducted += entry.getDailyDeduction();
+                found = true;
             }
         }
+
+        if (found)
+        {
+            return new playerTransactionHistory(date, totalDeducted);
+        }
+
         return null;
     }
 
