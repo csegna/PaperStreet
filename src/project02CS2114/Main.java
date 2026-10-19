@@ -93,6 +93,7 @@ public class Main
         {
             System.out.println("6. Advance to next day");
         }
+        System.out.println("7. View company news");
         System.out.println("0. Quit and show results");
     }
 
@@ -124,6 +125,9 @@ public class Main
                 return true;
             case 6:
                 return advance();
+            case 7:
+                viewNews();
+                return true;
             case 0:
                 return false;
             default:
@@ -265,6 +269,76 @@ public class Main
     {
         System.out.println();
         System.out.print(player.getTransactionHistory());
+    }
+    
+    /**
+     * Asks for a ticker and prints the news item for that company.
+     */
+    private static void viewNews()
+    {
+        System.out.println();
+        System.out.print("Available tickers:");
+        for (StockInfoClass s : market.getAllStocks())
+        {
+            System.out.print(" " + s.getTicker());
+        }
+        System.out.println();
+
+        StockInfoClass stock = askForStock();
+        if (stock == null)
+        {
+            return;
+        }
+
+        System.out.println();
+        System.out.println("=== " + stock.getTicker()
+            + " NEWS ===");
+        System.out.println(getNews(stock.getTicker()));
+    }
+
+
+    /**
+     * Looks up the news item for a ticker.
+     *
+     * @param ticker the stock's ticker symbol
+     * @return a dated headline, or a message if there is none
+     */
+    private static String getNews(String ticker)
+    {
+        switch (ticker.toUpperCase())
+        {
+            case "AAPL":
+                return "Oct 14: Apple closed above a $5 trillion market"
+                    + " value for the first time, the second company"
+                    + " to do so after Nvidia.";
+            case "MSFT":
+                return "Oct 12: Microsoft unveiled Maia 300, its"
+                    + " third-generation AI chip. Earnings are due"
+                    + " Oct 28.";
+            case "NVDA":
+                return "Oct 14: Nvidia fell over 3% as a hot inflation"
+                    + " report triggered a chip selloff and worries"
+                    + " about higher borrowing costs.";
+            case "AMZN":
+                return "Oct 19: Amazon rose after Morgan Stanley named it"
+                    + " a top pick and raised its price target to $350."
+                    + " Earnings are due Oct 29.";
+            case "TSLA":
+                return "Oct 15: Tesla unveiled its next-generation"
+                    + " Roadster. Q3 earnings are due Oct 21.";
+            case "DIS":
+                return "Oct 7: Disney confirmed that Disney+ will stream"
+                    + " Super Bowl LXI in 2027.";
+            case "KO":
+                return "Oct 15: KFC is moving its U.S. restaurants to"
+                    + " Coca-Cola, and KO hit a record high."
+                    + " Earnings are due Oct 27.";
+            case "F":
+                return "Oct 2: Ford kept its No. 3 spot in U.S. sales for"
+                    + " Q3, ahead of Hyundai. Earnings are due Oct 28.";
+            default:
+                return "No news available.";
+        }
     }
 
 

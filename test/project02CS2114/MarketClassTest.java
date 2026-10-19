@@ -162,7 +162,8 @@ public class MarketClassTest
     }
 
     /**
-     * Tests prices change by at most 5% and are rounded to the cent
+     * Tests prices stay within the daily move limit and are rounded
+     * to the cent
      */
     @Test
     public void testUpdatePricesNormal()
@@ -175,12 +176,14 @@ public class MarketClassTest
         }
         market.updatePrices();
         boolean anyChanged = false;
+        double maxRise = Math.exp(MarketClass.MAX_DAILY_MOVE) - 1;
         StockInfoClass[] after = market.getAllStocks();
         for (int i = 0; i < after.length; i++)
         {
             double p = after[i].getSharePrice();
+            assertTrue(p > 0);
             assertTrue(Math.abs(p - oldPrices[i])
-                <= oldPrices[i] * MarketClass.MAX_DAILY_CHANGE + 0.01);
+                <= oldPrices[i] * maxRise + 0.01);
             assertEquals(Math.round(p * 100) / 100.0, p, 1e-9);
             if (p != oldPrices[i])
             {

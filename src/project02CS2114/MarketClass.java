@@ -24,7 +24,13 @@ public class MarketClass
     /**
      *  Largest daily price move (0.05 = 5%)
      */
-    public static final double MAX_DAILY_CHANGE = 0.05;
+    private static final double MARKET_VOLATILITY = 0.01;
+    private static final double MARKET_CARRYOVER = 0.3;
+    private static final double DAILY_DRIFT = 0.0003;
+    private static final double JUMP_CHANCE = 0.03;
+    public static final double MAX_DAILY_MOVE = 0.20;
+
+    private double lastMarketReturn = 0.0;
     
     /** 
      * Lowest possible price. 
@@ -163,17 +169,80 @@ public class MarketClass
     }
 
     /**
-     * Moves every price up or down by up to max_daily_change
+     * Moves every price using a shared market move, each stock's own
+     * beta and volatility, and an occasional news-style shock.
      */
     public void updatePrices()
     {
+        double marketReturn = MARKET_CARRYOVER * lastMarketReturn
+            + random.nextGaussian() * MARKET_VOLATILITY;
+        lastMarketReturn = marketReturn;
+
         for (StockInfoClass stock : stocks.toArray())
         {
-            double change =
-                (random.nextDouble() * 2 - 1) * MAX_DAILY_CHANGE;
-            double newPrice = stock.getSharePrice() * (1 + change);
+            String ticker = stock.getTicker();
+            double change = DAILY_DRIFT
+                + getBeta(ticker) * marketReturn
+                + getVolatility(ticker) * random.nextGaussian();
+
+            if (random.nextDouble() < JUMP_CHANCE)
+            {
+                double size = 0.05 + random.nextDouble() * 0.07;
+                change += random.nextBoolean() ? size : -size;
+            }
+
+            change = Math.max(-MAX_DAILY_MOVE,
+                Math.min(MAX_DAILY_MOVE, change));
+
+            double newPrice = stock.getSharePrice() * Math.exp(change);
             newPrice = Math.round(newPrice * 100) / 100.0;
             stock.setSharePrice(Math.max(MIN_PRICE, newPrice));
+        }
+    }
+
+
+    /**
+     * How strongly a stock follows the overall market.
+     *
+     * @param ticker the stock's ticker
+     * @return the stock's beta
+     */
+    private double getBeta(String ticker)
+    {
+        switch (ticker)
+        {
+            case "KO":   return 0.5;
+            case "DIS":  return 1.0;
+            case "MSFT": return 1.1;
+            case "AAPL": return 1.1;
+            case "F":    return 1.1;
+            case "AMZN": return 1.2;
+            case "NVDA": return 1.6;
+            case "TSLA": return 1.8;
+            default:     return 1.0;
+        }
+    }
+
+
+    /**
+     * A stock's own daily volatility, separate from the market.
+     *
+     * @param ticker the stock's ticker
+     * @return the standard deviation of its daily noise
+     */
+    private double getVolatility(String ticker)
+    {
+        switch (ticker)
+        {
+            case "KO":   return 0.007;
+            case "MSFT": return 0.010;
+            case "AAPL": return 0.012;
+            case "DIS":  return 0.014;
+            case "AMZN": return 0.015;
+            case "F":    return 0.017;
+            case "NVDA": return 0.022;
+            case "TSLA": return 0.026;
+            default:     return 0.015;
         }
     }
 
