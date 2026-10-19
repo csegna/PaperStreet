@@ -2,33 +2,42 @@ package project02CS2114;
 
 // -------------------------------------------------------------------------
 /**
- * Stores a stock transaction.
- * 
+ * Stores one stock transaction (a buy or a sell) and provides the logic to
+ * carry out buys and sells for a player.
+ *
  * @author mlkuhl
  * @version Oct 11, 2026
  */
 public class StockTransactionsClass
 {
-    private StockInfoClass stock;
-    private int shares;
-    private double price;
-    private String type;
-    private int day;
+    /** Transaction type for a purchase. */
+    public static final String BUY = "BUY";
+
+    /** Transaction type for a sale. */
+    public static final String SELL = "SELL";
+
+    private final StockInfoClass stock;
+    private final int shares;
+    private final double price;
+    private final String type;
+    private final int day;
 
     // ----------------------------------------------------------
     /**
      * Create a new StockTransactionsClass object.
-     * 
+     *
      * @param stock
-     *            what stock
+     *            what stock; must not be null
      * @param shares
-     *            how many shares
+     *            how many shares; must be positive
      * @param price
-     *            price of the stock
+     *            price per share; must be positive
      * @param type
-     *            ?
+     *            BUY or SELL
      * @param day
-     *            what day it was bought on
+     *            the trading day it happened on; at least 1
+     * @throws IllegalArgumentException
+     *             if any argument is invalid
      */
     public StockTransactionsClass(
         StockInfoClass stock,
@@ -37,6 +46,27 @@ public class StockTransactionsClass
         String type,
         int day)
     {
+        if (stock == null)
+        {
+            throw new IllegalArgumentException("Stock must not be null");
+        }
+        if (shares <= 0)
+        {
+            throw new IllegalArgumentException("Shares must be positive");
+        }
+        if (!(price > 0) || Double.isInfinite(price))
+        {
+            throw new IllegalArgumentException("Price must be positive");
+        }
+        if (!BUY.equals(type) && !SELL.equals(type))
+        {
+            throw new IllegalArgumentException(
+                "Type must be BUY or SELL, got " + type);
+        }
+        if (day < 1)
+        {
+            throw new IllegalArgumentException("Day must be at least 1");
+        }
         this.stock = stock;
         this.shares = shares;
         this.price = price;
@@ -47,96 +77,103 @@ public class StockTransactionsClass
 
     // ----------------------------------------------------------
     /**
-     * Buys the stock if the player is able to, else returns false.
-     * 
+     * Buys shares at the stock's current price if the player can afford
+     * them. On success, the cash is deducted, the holding is created or
+     * updated (including its average purchase price), and the transaction
+     * is added to the player's history. On failure nothing changes.
+     *
      * @param player
-     *            The profile of the player.
+     *            the player buying
      * @param stock
-     *            What stock to buy.
+     *            what stock to buy
      * @param shares
-     *            How many shares
-     * @return true if successfull, else false.
+     *            how many shares
+     * @param day
+     *            the current trading day
+     * @return true if successful, else false.
      */
-    public
-        boolean
-        buyStock(playerProfileClass player, StockInfoClass stock, int shares)
+    public static boolean buyStock(
+        playerProfileClass player,
+        StockInfoClass stock,
+        int shares,
+        int day)
     {
-        if (shares <= 0)
+        if (player == null || stock == null || shares <= 0 || day < 1)
         {
             return false;
         }
-
-        if (stock.getSharePrice() * shares > player.getBalance())
+        double price = stock.getSharePrice();
+        double cost = price * shares;
+        if (cost > player.getBalance())
         {
             return false;
         }
-        double newBalance =
-            player.getBalance() - shares * stock.getSharePrice();
-        player.setBalance(newBalance);
+        player.setBalance(player.getBalance() - cost);
 
-        for (int i = 0; i < player.getHoldings().size(); i++)
+        HoldingClass holding = player.findHolding(stock.getTicker());
+        if (holding == null)
         {
-            if (player.getHoldings().get(i).getStock().getTicker()
-                .equals(stock.getTicker()))
-            {
-                HoldingClass thisStock = player.getHoldings().get(i);
-                thisStock.setShares(thisStock.getShares() + shares);
-                return true;
-            }
+            player.getHoldings().add(new HoldingClass(stock, shares, price));
         }
-
-        HoldingClass newHolding = new HoldingClass(stock, shares);
-
-        player.getHoldings().add(newHolding);
+        else
+        {
+            holding.addShares(shares, price);
+        }
+        player.getTransactionHistory().record(
+            new StockTransactionsClass(stock, shares, price, BUY, day));
         return true;
-
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Tries and sells the players stock.
-     * 
+     * Sells shares at the stock's current price if the player owns enough.
+     * On success, the cash is added, the holding is reduced (and removed
+     * when it reaches zero shares), and the transaction is added to the
+     * player's history. On failure nothing changes.
+     *
      * @param player
-     *            Name of the player
+     *            the player selling
      * @param stock
-     *            Stock to sell
+     *            the stock to sell
      * @param shares
-     *            How many shares of said stock
-     * @return true/false depending if it was a success or not.
+     *            how many shares
+     * @param day
+     *            the current trading day
+     * @return true if successful, else false.
      */
-    public
-        boolean
-        sellStock(playerProfileClass player, StockInfoClass stock, int shares)
+    public static boolean sellStock(
+        playerProfileClass player,
+        StockInfoClass stock,
+        int shares,
+        int day)
     {
-        if (shares <= 0)
+        if (player == null || stock == null || shares <= 0 || day < 1)
         {
             return false;
         }
-
-        for (int i = 0; i < player.getHoldings().size(); i++)
+        HoldingClass holding = player.findHolding(stock.getTicker());
+        if (holding == null || holding.getShares() < shares)
         {
-            HoldingClass currHolding = player.getHoldings().get(i);
-            if (currHolding.getStock().getTicker().equals(stock.getTicker()))
-            {
-                if (currHolding.getShares() >= shares)
-                {
-                    currHolding.setShares(currHolding.getShares() - shares);
-                    player.setBalance(
-                        player.getBalance() + stock.getSharePrice() * shares);
-                    return true;
-                }
-            }
+            return false;
         }
-
-        return false;
+        double price = stock.getSharePrice();
+        holding.removeShares(shares);
+        if (holding.getShares() == 0)
+        {
+            player.getHoldings().remove(holding);
+        }
+        player.setBalance(player.getBalance() + price * shares);
+        player.getTransactionHistory().record(
+            new StockTransactionsClass(stock, shares, price, SELL, day));
+        return true;
     }
 
 
     // ----------------------------------------------------------
     /**
      * Gets the stock associated.
-     * 
+     *
      * @return said stock.
      */
     public StockInfoClass getStock()
@@ -147,9 +184,9 @@ public class StockTransactionsClass
 
     // ----------------------------------------------------------
     /**
-     * Gets the shares associated
-     * 
-     * @return said shares.
+     * Gets the number of shares traded.
+     *
+     * @return the shares.
      */
     public int getShares()
     {
@@ -159,9 +196,9 @@ public class StockTransactionsClass
 
     // ----------------------------------------------------------
     /**
-     * Getter for the price
-     * 
-     * @return said price.
+     * Gets the price per share at the time of the transaction.
+     *
+     * @return the price.
      */
     public double getPrice()
     {
@@ -171,9 +208,9 @@ public class StockTransactionsClass
 
     // ----------------------------------------------------------
     /**
-     * Gets the type of transaction (buy/sell).
-     * 
-     * @return the type.
+     * Gets the type of transaction.
+     *
+     * @return BUY or SELL.
      */
     public String getType()
     {
@@ -184,11 +221,25 @@ public class StockTransactionsClass
     // ----------------------------------------------------------
     /**
      * Gets the day of the transaction.
-     * 
-     * @return that day...
+     *
+     * @return the trading day.
      */
     public int getDay()
     {
         return day;
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * One line describing the transaction.
+     *
+     * @return day, type, ticker, shares, price, and total.
+     */
+    @Override
+    public String toString()
+    {
+        return String.format("Day %2d  %-4s %-6s %5d @ $%,.2f = $%,.2f",
+            day, type, stock.getTicker(), shares, price, shares * price);
     }
 }

@@ -14,7 +14,7 @@ public class MarketClass
     /** 
      * Game length when none is given
      */
-    public static final int DEFAULT_TOTAL_DAYS = 30;
+    public static final int DEFAULT_TOTAL_DAYS = 15;
     
     /**
      *  Days in a row a player may go without trading. 
@@ -193,7 +193,7 @@ public class MarketClass
      */
     public boolean mustTradeBeforeAdvancing()
     {
-        return currentDay - lastTradeDay >= MAX_IDLE_DAYS;
+        return currentDay - lastTradeDay > MAX_IDLE_DAYS;
     }
 
     /**

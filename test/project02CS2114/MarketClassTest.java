@@ -227,15 +227,17 @@ public class MarketClassTest
     public void testAdvanceDayIdleRule()
     {
         assertFalse(market.mustTradeBeforeAdvancing());
-        assertTrue(market.advanceDay());
-        assertTrue(market.mustTradeBeforeAdvancing());
+        assertTrue(market.advanceDay());                // now day 2
+        assertFalse(market.mustTradeBeforeAdvancing()); // 1 idle day so far
+        assertTrue(market.advanceDay());                // now day 3
+        assertTrue(market.mustTradeBeforeAdvancing());  // 2 idle days used up
         assertFalse(market.advanceDay());
-        assertEquals(2, market.getCurrentDay());
+        assertEquals(3, market.getCurrentDay());
 
         market.recordTrade();
         assertFalse(market.mustTradeBeforeAdvancing());
         assertTrue(market.advanceDay());
-        assertEquals(3, market.getCurrentDay());
+        assertEquals(4, market.getCurrentDay());
     }
 
     /**

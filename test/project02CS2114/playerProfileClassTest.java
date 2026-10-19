@@ -3,6 +3,7 @@ package project02CS2114;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.Test;
 // -------------------------------------------------------------------------
 /**
  * Tester for the playerProfileClass.
- * 
+ *
  * @author mlkuhl
  * @version Oct 12, 2026
  */
@@ -41,7 +42,7 @@ public class playerProfileClassTest
     }
 
 
-    // ----------------------------------------------------------
+    // ---------------- getName ----------------
     /**
      * Good input for getName().
      */
@@ -52,20 +53,32 @@ public class playerProfileClassTest
     }
 
 
-    // ----------------------------------------------------------
     /**
-     * Bad input for getName().
+     * The name is stored trimmed.
+     */
+    @Test
+    public void testGetNameTrimmed()
+    {
+        assertEquals("Sam", new playerProfileClass("  Sam ", 500.0).getName());
+    }
+
+
+    /**
+     * Null or blank names are rejected.
      */
     @Test
     public void testGetNameBad()
     {
-        // Constructor does not validate, so a null name is stored.
-        playerProfileClass nullName = new playerProfileClass(null, 500.0);
-        assertNull(nullName.getName());
+        assertThrows(IllegalArgumentException.class,
+            () -> new playerProfileClass(null, 500.0));
+        assertThrows(IllegalArgumentException.class,
+            () -> new playerProfileClass("", 500.0));
+        assertThrows(IllegalArgumentException.class,
+            () -> new playerProfileClass("   ", 500.0));
     }
 
 
-    // ----------------------------------------------------------
+    // ---------------- getTransactionHistory ----------------
     /**
      * Good input for getTransactionHistory().
      */
@@ -73,24 +86,23 @@ public class playerProfileClassTest
     public void testGetTransactionHistoryGood()
     {
         assertNotNull(player.getTransactionHistory());
+        assertTrue(player.getTransactionHistory().isEmpty());
     }
 
 
-    // ----------------------------------------------------------
     /**
-     * Bad input for getTransactionHistory.
+     * Each player gets their own history; it is not shared.
      */
     @Test
     public void testGetTransactionHistoryBad()
     {
-        // Each player gets their own history; it is not shared.
-        playerProfileClass other = new playerProfileClass("Alex", 0.0);
+        playerProfileClass other = new playerProfileClass("Alex", 500.0);
         assertTrue(
             player.getTransactionHistory() != other.getTransactionHistory());
     }
 
 
-    // ----------------------------------------------------------
+    // ---------------- getBalance / getStartingBalance ----------------
     /**
      * Good input for getBalance().
      */
@@ -101,21 +113,36 @@ public class playerProfileClassTest
     }
 
 
-    // ----------------------------------------------------------
     /**
-     * Bad input for getBalance().
+     * Zero, negative, and non-finite starting balances are rejected.
      */
     @Test
     public void testGetBalanceBad()
     {
-        // Constructor does not validate, so a negative starting balance is
-        // stored.
-        playerProfileClass broke = new playerProfileClass("Broke", -50.0);
-        assertEquals(-50.0, broke.getBalance(), DELTA);
+        assertThrows(IllegalArgumentException.class,
+            () -> new playerProfileClass("Broke", -50.0));
+        assertThrows(IllegalArgumentException.class,
+            () -> new playerProfileClass("Broke", 0.0));
+        assertThrows(IllegalArgumentException.class,
+            () -> new playerProfileClass("Broke", Double.NaN));
+        assertThrows(IllegalArgumentException.class,
+            () -> new playerProfileClass("Broke", Double.POSITIVE_INFINITY));
     }
 
 
-    // ----------------------------------------------------------
+    /**
+     * The starting balance does not change when the balance does.
+     */
+    @Test
+    public void testGetStartingBalance()
+    {
+        assertEquals(1000.0, player.getStartingBalance(), DELTA);
+        player.setBalance(250.0);
+        assertEquals(1000.0, player.getStartingBalance(), DELTA);
+    }
+
+
+    // ---------------- setBalance ----------------
     /**
      * Good input for setBalance().
      */
@@ -127,7 +154,17 @@ public class playerProfileClassTest
     }
 
 
-    // ----------------------------------------------------------
+    /**
+     * A balance of exactly zero is allowed (all cash spent).
+     */
+    @Test
+    public void testSetBalanceZero()
+    {
+        player.setBalance(0.0);
+        assertEquals(0.0, player.getBalance(), DELTA);
+    }
+
+
     /**
      * Bad input for setBalance().
      */
@@ -137,37 +174,64 @@ public class playerProfileClassTest
         assertThrows(
             IllegalArgumentException.class,
             () -> player.setBalance(-1.0));
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> player.setBalance(Double.NaN));
         assertEquals(1000.0, player.getBalance(), DELTA);
     }
 
 
-    // ----------------------------------------------------------
+    // ---------------- getHoldings / findHolding ----------------
     /**
      * Good input for getHoldings().
      */
     @Test
     public void testGetHoldingsGood()
     {
-        // Fails until holdings is initialized in the constructor.
         assertNotNull(player.getHoldings());
         assertEquals(0, player.getHoldings().size());
     }
 
 
-    // ----------------------------------------------------------
     /**
-     * Bad input for getHoldings().
+     * The returned list is the real one, so outside code can mutate it.
      */
     @Test
     public void testGetHoldingsBad()
     {
-        // The returned list is the real one, so outside code can mutate it.
         player.getHoldings().add(new HoldingClass(stock, 2));
         assertEquals(1, player.getHoldings().size());
     }
 
 
-    // ----------------------------------------------------------
+    /**
+     * findHolding ignores case and spacing.
+     */
+    @Test
+    public void testFindHoldingGood()
+    {
+        HoldingClass h = new HoldingClass(stock, 2);
+        player.getHoldings().add(h);
+        assertSame(h, player.findHolding("AAPL"));
+        assertSame(h, player.findHolding(" aapl "));
+    }
+
+
+    /**
+     * findHolding returns null when the stock is not owned or the ticker
+     * is null.
+     */
+    @Test
+    public void testFindHoldingBad()
+    {
+        player.getHoldings().add(new HoldingClass(stock, 2));
+        assertNull(player.findHolding("MSFT"));
+        assertNull(player.findHolding(null));
+        assertNull(player.findHolding(""));
+    }
+
+
+    // ---------------- getPortfolioValue ----------------
     /**
      * Good input for getPortfolioValue().
      */
@@ -180,41 +244,72 @@ public class playerProfileClassTest
     }
 
 
-    // ----------------------------------------------------------
     /**
-     * Bad input for getPortfolioValue().
+     * No holdings: value should be 0, not an exception.
      */
     @Test
     public void testGetPortfolioValueBad()
     {
-        // No holdings: value should be 0, not an exception.
         assertEquals(0.0, player.getPortfolioValue(), DELTA);
     }
 
 
-    // ----------------------------------------------------------
+    // ---------------- getTotalValue ----------------
     /**
-     * Good input for getProfitLoss().
+     * Total value is cash plus stocks.
+     */
+    @Test
+    public void testGetTotalValue()
+    {
+        player.setBalance(700.0);
+        player.getHoldings().add(new HoldingClass(stock, 3));
+        assertEquals(1000.0, player.getTotalValue(), DELTA);
+    }
+
+
+    /**
+     * With no holdings, total value equals cash.
+     */
+    @Test
+    public void testGetTotalValueNoHoldings()
+    {
+        assertEquals(1000.0, player.getTotalValue(), DELTA);
+    }
+
+
+    // ---------------- getProfitLoss ----------------
+    /**
+     * Spend 300 on 3 shares worth 100 each: no change in net worth.
      */
     @Test
     public void testGetProfitLossGood()
     {
-        // Spend 300 on 3 shares worth 100 each: no change in net worth.
         player.setBalance(700.0);
         player.getHoldings().add(new HoldingClass(stock, 3));
         assertEquals(0.0, player.getProfitLoss(), DELTA);
     }
 
 
-    // ----------------------------------------------------------
     /**
-     * Bad input for getProfitLoss().
+     * Balance dropped with no holdings: a 400 loss.
      */
     @Test
     public void testGetProfitLossBad()
     {
-        // Balance dropped with no holdings: a 400 loss.
         player.setBalance(600.0);
         assertEquals(-400.0, player.getProfitLoss(), DELTA);
+    }
+
+
+    /**
+     * A price increase on held stock is a profit.
+     */
+    @Test
+    public void testGetProfitLossPriceRise()
+    {
+        player.setBalance(700.0);
+        player.getHoldings().add(new HoldingClass(stock, 3));
+        stock.setSharePrice(200.0); // holdings now worth 600
+        assertEquals(300.0, player.getProfitLoss(), DELTA);
     }
 }

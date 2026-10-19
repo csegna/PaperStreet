@@ -1,59 +1,110 @@
 package project02CS2114;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tester for playerTransactionHistoryChain.
+ */
 public class playerTransactionHistoryChainTest
 {
     private playerTransactionHistoryChain testChain;
-    private playerTransactionHistory entry1;
-    private playerTransactionHistory entry2;
+    private StockTransactionsClass entry1; // day 1
+    private StockTransactionsClass entry2; // day 1
+    private StockTransactionsClass entry3; // day 2
 
     @BeforeEach
     public void setUp()
     {
+        StockInfoClass stock =
+            new StockInfoClass("AAPL", "Apple", "Tech company", 100.0);
         testChain = new playerTransactionHistoryChain();
-        entry1 = new playerTransactionHistory("1/2/2003", 1234);
-        entry2 = new playerTransactionHistory("12/30/2003", 5678);
+        entry1 = new StockTransactionsClass(
+            stock, 5, 100.0, StockTransactionsClass.BUY, 1);
+        entry2 = new StockTransactionsClass(
+            stock, 2, 110.0, StockTransactionsClass.SELL, 1);
+        entry3 = new StockTransactionsClass(
+            stock, 1, 120.0, StockTransactionsClass.BUY, 2);
     }
 
     @Test
-    public void testGetSpecificDayInfo()
+    public void testRecordKeepsOldestFirst()
     {
-        testChain.add(entry1);
-        testChain.add(entry2);
+        testChain.record(entry1);
+        testChain.record(entry2);
+        testChain.record(entry3);
 
-        assertSame(
-            entry1,
-            testChain.getSpecificDayInfo(new String("1/2/2003")));
-        assertSame(
-            entry2,
-            testChain.getSpecificDayInfo(new String("12/30/2003")));
+        StockTransactionsClass[] all = testChain.toArray();
+        assertEquals(3, all.length);
+        assertSame(entry1, all[0]);
+        assertSame(entry2, all[1]);
+        assertSame(entry3, all[2]);
     }
 
     @Test
-    public void testGetSpecificDayInfoNotFound()
+    public void testRecordNull()
     {
-        testChain.add(entry1);
-        testChain.add(entry2);
-
-        assertNull(testChain.getSpecificDayInfo("5/10/2004"));
+        assertThrows(IllegalArgumentException.class,
+            () -> testChain.record(null));
+        assertTrue(testChain.isEmpty());
     }
 
     @Test
-    public void testGetSpecificDayInfoEmpty()
+    public void testToArrayEmpty()
     {
-        assertNull(testChain.getSpecificDayInfo("1/2/2003"));
+        assertEquals(0, testChain.toArray().length);
     }
 
     @Test
-    public void testGetSpecificDayInfoNull()
+    public void testGetTransactionsOnDay()
     {
-        testChain.add(entry1);
+        testChain.record(entry1);
+        testChain.record(entry2);
+        testChain.record(entry3);
 
-        assertNull(testChain.getSpecificDayInfo(null));
+        StockTransactionsClass[] dayOne = testChain.getTransactionsOnDay(1);
+        assertEquals(2, dayOne.length);
+        assertSame(entry1, dayOne[0]);
+        assertSame(entry2, dayOne[1]);
+
+        StockTransactionsClass[] dayTwo = testChain.getTransactionsOnDay(2);
+        assertEquals(1, dayTwo.length);
+        assertSame(entry3, dayTwo[0]);
+    }
+
+    @Test
+    public void testGetTransactionsOnDayNotFound()
+    {
+        testChain.record(entry1);
+        assertEquals(0, testChain.getTransactionsOnDay(5).length);
+    }
+
+    @Test
+    public void testGetTransactionsOnDayEmpty()
+    {
+        assertEquals(0, testChain.getTransactionsOnDay(1).length);
+    }
+
+    @Test
+    public void testToStringEmpty()
+    {
+        assertEquals("(no transactions)", testChain.toString());
+    }
+
+    @Test
+    public void testToStringOneLinePerTransaction()
+    {
+        testChain.record(entry1);
+        testChain.record(entry2);
+        String[] lines = testChain.toString().split(
+            System.lineSeparator());
+        assertEquals(2, lines.length);
+        assertEquals(entry1.toString(), lines[0]);
+        assertEquals(entry2.toString(), lines[1]);
     }
 }
